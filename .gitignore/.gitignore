@@ -1,0 +1,45 @@
+STEP1:下面的SaveAttach函数可以保存附件中的docx文档到D盘根目录下。用ALT+F11打开VBA编辑器，插入下述代码：
+Public Sub SaveAttach(Item As Outlook.MailItem)
+SaveAttachment Item, "D:\", "*.docx"
+' MsgBox "附件已保存"
+End Sub
+' 保存附件
+' path为保存路径，condition为附件名匹配条件
+Private Sub SaveAttachment(ByVal Item As Object, path$, Optional
+condition$ = "*")
+Dim olAtt As Attachment
+Dim i As Integer
+If
+Item.Attachments.Count > 0 Then
+For i =
+1 To Item.Attachments.Count
+Set
+olAtt = Item.Attachments(i)
+' save
+the attachment
+If
+olAtt.FileName Like condition Then
+olAtt.SaveAsFile path &
+olAtt.FileName
+End If
+Next
+End If
+Set olAtt =
+Nothing
+End Sub
+STEP2:如何实现自动保存呢？利用Office Outlook 2007的规则，它可以设定对满足一定条件的邮件自动运行脚本，然后选择脚本为SaveAttach函数即可。这样便能实现收到某些邮件时自动保存符合条件的附件到相应文件目录。
+补充：如果上面方法没效果，可以尝试修改下面的设置  
+在Outlook的信任中心勾选上“允许使用脚本”。对于Outlook
+2007，在“工具->信任中心->电子邮件安全性->文件夹中的脚本"，勾选上"允许在公用文件夹中使用脚本"和"允许在共享文件夹中使用脚本"
+对于Outlook 2010，相应选项位于“文件->选项->信任中心->电子邮件安全性"里。
+
+再补充：如果STEP2中找不到运行脚本的选项
+1，启动注册表修改
+开始->regedit
+2,选择目录
+HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Outlook\Security 
+备注：16.0跟outlook版本有关，我的是2010对应的是14.0
+3，修改 EnableUnsafeClientMailRules值
+如果没有，就手动创建一个
+右边空白处，右键新建一个DWORD值，取名为EnableUnsafeClientMailRules，值设置为1
+4，重启outlook就可以了
